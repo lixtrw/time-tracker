@@ -21,7 +21,7 @@ impl Activity {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct Day {
     pub activities: Vec<Activity>,
 }
@@ -41,15 +41,12 @@ impl All {
     pub fn get_day(&self, date: NaiveDate) -> Option<&Day> {
         self.days.get(&date)
     }
-
     pub fn get_day_mut(&mut self, date: NaiveDate) -> Option<&mut Day> {
         self.days.get_mut(&date)
     }
-
     pub fn add_activity(&mut self, date: NaiveDate, activity: Activity) {
         self.days.entry(date).or_default().activities.push(activity);
     }
-
     pub fn remove_activity_by_index(&mut self, date: NaiveDate, index: usize) -> Option<Activity> {
         let day = self.get_day_mut(date)?;
 
@@ -58,5 +55,24 @@ impl All {
         } else {
             None
         }
+    }
+    pub fn get_period(
+        &self,
+        since: NaiveDate,
+        until: NaiveDate,
+    ) -> Vec<(NaiveDate, Day)> {
+        let mut result = Vec::new();
+        let mut date = since;
+        while date <= until {
+            result.push((
+                date,
+                self.days.get(&date).cloned().unwrap_or_default(),
+            ));
+            if date == until {
+                break;
+            }
+            date += chrono::Duration::days(1);
+        }
+        result
     }
 }
