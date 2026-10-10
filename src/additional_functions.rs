@@ -1,33 +1,33 @@
-use chrono::{Local, NaiveDate};
+#![allow(dead_code)]
+
+use chrono::{Datelike, Local, NaiveDate};
 use color_eyre::eyre::{Context, Ok, Result, eyre};
-use std::time::Duration;
+use std::{fs, path::PathBuf, time::Duration};
+
+use crate::activity::All;
 
 pub fn format_to_duration(time: &str) -> Result<Duration> {
     let mut total_duration = Duration::ZERO;
-    let mut remainder = time.to_lowercase();
+    let remainder = time.to_lowercase();
     let mut remainder_str = remainder.as_str();
 
     while !remainder_str.is_empty() {
-        // 1. Ищем, где заканчивается число (первая не-цифра)
         let split_pos = remainder_str
             .find(|c: char| !c.is_ascii_digit())
             .ok_or_else(|| eyre!("There is no unit of measurement in '{}'", remainder_str))?;
 
         let (num_str, rest) = remainder_str.split_at(split_pos);
 
-        // 2. Ищем, где заканчиваются буквы единицы измерения (следующая цифра или конец строки)
         let end_of_unit = rest
             .find(|c: char| c.is_ascii_digit())
             .unwrap_or(rest.len());
 
         let (unit_str, next_part) = rest.split_at(end_of_unit);
 
-        // 3. Парсим число
         let value: u64 = num_str
             .parse()
             .wrap_err_with(|| format!("Failed to parse the number: '{}'", num_str))?;
 
-        // 4. Считаем длительность для текущего кусочка
         let part_duration = match unit_str {
             "s" | "sec" | "secs" => Duration::from_secs(value),
             "m" | "min" | "mins" => Duration::from_secs(value * 60),
@@ -39,18 +39,76 @@ pub fn format_to_duration(time: &str) -> Result<Duration> {
 
         total_duration += part_duration;
 
-        // Переходим к следующему фрагменту строки
         remainder_str = next_part;
     }
 
     Ok(total_duration)
 }
-pub fn parse_day(day: &str) -> Result<NaiveDate> {
-    let day_n = match day {
-        "y" => Local::now().date_naive() - chrono::Duration::days(1),
-        "t" => Local::now().date_naive(),
-        _ => NaiveDate::parse_from_str(day, "%-d-%-m-%Y")?,
-    };
+pub fn parse_user_date(input: &str) -> Result<NaiveDate> {
+    let now = Local::now().date_naive();
+    let trimmed = input.trim();
 
-    Ok(day_n)
+    match trimmed {
+        "t" | "today" => return Ok(now),
+        "y" | "yesterday" => return Ok(now - chrono::Duration::days(1)),
+        _ => {}
+    }
+
+    if let Some(day_str) = trimmed.strip_suffix("-tt") {
+        let day: u32 = day_str
+            .parse()
+            .map_err(|_| eyre!("Invalid day: '{}'", day_str))?;
+        return NaiveDate::from_ymd_opt(now.year(), now.month(), day)
+            .ok_or_else(|| eyre!("Non-existent date: {}-{}-{}", day, now.month(), now.year()));
+    }
+
+    let parts: Vec<&str> = trimmed.split('-').collect();
+    if parts.len() == 3 {
+        let day: u32 = parts[0]
+            .parse()
+            .map_err(|_| eyre!("Invalid day: '{}'", parts[0]))?;
+        let month: u32 = parts[1]
+            .parse()
+            .map_err(|_| eyre!("Invalid month: '{}'", parts[1]))?;
+
+        let year: i32 = match parts[2] {
+            "t" => now.year(),
+            y => y.parse().map_err(|_| eyre!("Invalid year: '{}'", y))?,
+        };
+
+        return NaiveDate::from_ymd_opt(year, month, day)
+            .ok_or_else(|| eyre!("Invalid date: {}-{}-{}", day, month, year));
+    }
+
+    NaiveDate::parse_from_str(trimmed, "%-d-%-m-%Y")
+        .map_err(|e| eyre!("Failed to parse date'{}': {}", input, e))
+}
+pub fn save(data: &All) -> Result<()> {
+    let path = get_path()?;
+    let string_content =
+        serde_json::to_string_pretty(data).context("failed to parse data to json")?;
+    fs::write(path, &string_content).context("failed to write file")?;
+    Ok(())
+}
+pub fn load_data() -> Result<All> {
+    let path = get_path()?;
+    if path.exists() {
+        let string_conent = fs::read_to_string(&path)
+            .with_context(|| format!("Failed to read file: {}", path.display()))?;
+        let all_data = serde_json::from_str::<All>(&string_conent)
+            .context("failed to parse string to data")?;
+        Ok(all_data)
+    } else {
+        let data = All::default();
+        Ok(data)
+    }
+}
+
+fn get_path() -> Result<PathBuf> {
+    let path = dirs::data_local_dir().unwrap().join("time_traker");
+    if !path.exists() {
+        fs::create_dir_all(&path)
+            .with_context(|| format!("Failed to create path: {}", path.display()))?;
+    }
+    Ok(path.join("data.json"))
 }

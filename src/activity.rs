@@ -1,35 +1,61 @@
+#![allow(dead_code)]
+
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
+use std::collections::{BTreeSet, HashMap};
 use std::time::Duration;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Activity {
-    pub tags: Vec<String>,
+    pub tags: BTreeSet<String>,
     pub time_spent: Duration,
 }
+
 impl Activity {
     pub fn new(tags: Vec<String>, time_spent: Duration) -> Self {
-        Self { tags, time_spent }
-    }
-}
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Day {
-    pub activities: Vec<Activity>,
-    pub date: NaiveDate,
-}
-impl Day {
-    pub fn new(activities: Vec<Activity>, date: NaiveDate) -> Self {
-        Self { activities, date }
+        Self {
+            tags: tags.into_iter().collect(),
+            time_spent,
+        }
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct All {
-    pub days: Vec<Day>,
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct Day {
+    pub activities: Vec<Activity>,
 }
+
+impl Day {
+    pub fn new(activities: Vec<Activity>) -> Self {
+        Self { activities }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct All {
+    pub days: HashMap<NaiveDate, Day>,
+}
+
 impl All {
     pub fn get_day(&self, date: NaiveDate) -> Option<&Day> {
-        self.days.iter().find(|day| day.date == date)
+        self.days.get(&date)
     }
-    pub fn add_actitity(&mut self) {}
+
+    pub fn get_day_mut(&mut self, date: NaiveDate) -> Option<&mut Day> {
+        self.days.get_mut(&date)
+    }
+
+    pub fn add_activity(&mut self, date: NaiveDate, activity: Activity) {
+        self.days.entry(date).or_default().activities.push(activity);
+    }
+
+    pub fn remove_activity_by_index(&mut self, date: NaiveDate, index: usize) -> Option<Activity> {
+        let day = self.get_day_mut(date)?;
+
+        if index < day.activities.len() {
+            Some(day.activities.remove(index))
+        } else {
+            None
+        }
+    }
 }
