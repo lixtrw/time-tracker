@@ -1,14 +1,17 @@
 mod activity;
 mod additional_functions;
+mod tui;
 
+use crate::activity::{Activity, All};
+use crate::additional_functions::format_time;
+use chrono::{Local, NaiveDate};
+use clap::{Parser, Subcommand};
+use color_eyre::eyre::Result;
 use std::collections::BTreeSet;
 use std::time::Duration;
-use crate::activity::{Activity, All};
-use clap::{Parser, Subcommand};
-use color_eyre::eyre::{Result};
 
 #[derive(Parser)]
-#[command(author = "lixtr", version, about = "CLI Activity & Time Tracker")]
+#[command(author = "lixtrw", version, about = "Time tracker")]
 struct Cli {
     #[command(subcommand)]
     command: Command,
@@ -28,34 +31,37 @@ enum Command {
     },
     Stat {
         #[command(subcommand)]
-        stat_type: Option<StatType>
+        stat_type: Option<StatType>,
     },
     Remove {
         index: usize,
         #[arg(short = 'd', long = "day", default_value = "t")]
         day: String,
     },
+    StopWatch {
+        tags: Vec<String>,
+    },
 }
 #[derive(Subcommand)]
-enum StatType{
-    Day{
+enum StatType {
+    Day {
         #[arg(default_value = "t")]
         day: String,
     },
-    Week{
+    Week {
         #[command(subcommand)]
-        week_type: WeekType
+        week_type: WeekType,
     },
-    Period{
+    Period {
         since: String,
         until: String,
     },
-    Tag{
-    tags: Vec<String>
-    }
+    Tag {
+        tags: Vec<String>,
+    },
 }
 #[derive(Subcommand)]
-pub enum WeekType{
+pub enum WeekType {
     SinceToday,
     ThisWeek,
 }
@@ -73,12 +79,7 @@ fn main() -> Result<()> {
         } => {
             let parsed_day = additional_functions::parse_date(&day)?;
             let parsed_duration = additional_functions::format_to_duration(&duration)?;
-
-            let activity = Activity::new(activity_tags, parsed_duration);
-            data.add_activity(parsed_day, activity);
-
-            additional_functions::save(&data)?;
-            println!("Activity saved at {parsed_day}");
+            add_activity(parsed_day, activity_tags, parsed_duration, &mut data)?;
         }
 
         Command::Stat { stat_type } => {
@@ -89,15 +90,19 @@ fn main() -> Result<()> {
                 StatType::Day { day } => {
                     print_day_stat(&data, &day)?;
                 }
-                StatType::Week{week_type}=> {
-                    print_week_stat(&data,week_type)?;
+                StatType::Week { week_type } => {
+                    print_week_stat(&data, week_type)?;
                 }
-                StatType::Period { since, until } => {
+                StatType::Period { since: _, until: _ } => {
                     println!("period is not implemented yet");
                 }
-                StatType::Tag {tags} => {
+                StatType::Tag { tags } => {
                     let a = data.get_tags(tags.clone());
-                    println!("tags: # {} : {}", tags.iter().cloned().collect::<Vec<_>>().join(" "), additional_functions::format_time(a));
+                    println!(
+                        "tags: # {} : {}",
+                        tags.to_vec().join(" "),
+                        additional_functions::format_time(a)
+                    );
                 }
             }
         }
@@ -111,13 +116,37 @@ fn main() -> Result<()> {
                     println!("Activity deleted [{}]: #{}", index, tags_str);
                 }
                 None => {
-                    println!("Activity with index {} not found for date {}", index, parsed_day);
+                    println!(
+                        "Activity with index {} not found for date {}",
+                        index, parsed_day
+                    );
                     return Ok(());
                 }
             }
         }
+        Command::StopWatch { tags } => {
+            let text_tags = tags.join(" ");
+            let time = tui::tui::run(&text_tags)?;
+            println!("\n{}\n", format_time(time));
+            let today = Local::now().date_naive();
+            add_activity(today, tags, time, &mut data)?;
+        }
     }
 
+    Ok(())
+}
+
+fn add_activity(
+    day: NaiveDate,
+    activity_tags: Vec<String>,
+    duration: Duration,
+    data: &mut All,
+) -> Result<()> {
+    let activity = Activity::new(activity_tags, duration);
+    data.add_activity(day, activity);
+
+    additional_functions::save(data)?;
+    println!("Activity saved at {day}");
     Ok(())
 }
 
@@ -125,7 +154,7 @@ fn print_week_stat(data: &All, week_type: WeekType) -> Result<()> {
     let period_data = additional_functions::get_week(data, week_type);
 
     let Some((first_date, _)) = period_data.first() else {
-        println!("No data for this week.");
+        println!("No data for this week");
         return Ok(());
     };
 
@@ -137,14 +166,19 @@ fn print_week_stat(data: &All, week_type: WeekType) -> Result<()> {
     let mut total_week_time = Duration::ZERO;
 
     for (date, day) in &period_data {
-        let total_day_time = day.activities.iter()
-            .map(|activity| activity.time_spent).sum();
+        let total_day_time = day
+            .activities
+            .iter()
+            .map(|activity| activity.time_spent)
+            .sum();
 
         total_week_time += total_day_time;
 
         let text_time = additional_functions::format_time(total_day_time);
 
-        let activities = day.activities.iter()
+        let activities = day
+            .activities
+            .iter()
             .flat_map(|act| act.tags.iter().cloned())
             .collect::<BTreeSet<_>>()
             .into_iter()
@@ -160,16 +194,20 @@ fn print_week_stat(data: &All, week_type: WeekType) -> Result<()> {
     }
 
     println!("{:-<55}", "");
-    println!("Total: {}", additional_functions::format_time(total_week_time));
+    println!(
+        "Total: {}",
+        additional_functions::format_time(total_week_time)
+    );
 
     Ok(())
 }
-fn print_day_stat(data: &All, day: &str) -> Result<()>{
-    let parsed_day = additional_functions::parse_date(&day)?;
+
+fn print_day_stat(data: &All, day: &str) -> Result<()> {
+    let parsed_day = additional_functions::parse_date(day)?;
     let day_info = match data.get_day(parsed_day) {
         Some(info) => info,
         None => {
-            println!("There is nothing for {}.", parsed_day);
+            println!("There is nothing for {}", parsed_day);
             return Ok(());
         }
     };

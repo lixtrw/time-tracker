@@ -1,11 +1,11 @@
 #![allow(dead_code)]
 
-use chrono::{Datelike, Local, NaiveDate, NaiveTime};
+use chrono::{Datelike, Local, NaiveDate};
 use color_eyre::eyre::{Context, Ok, Result, eyre};
 use std::{fs, path::PathBuf, time::Duration};
 
-use crate::activity::{All, Day};
 use crate::WeekType;
+use crate::activity::{All, Day};
 
 pub fn format_to_duration(time: &str) -> Result<Duration> {
     let mut total_duration = Duration::ZERO;
@@ -113,8 +113,8 @@ fn get_path() -> Result<PathBuf> {
     }
     Ok(path.join("data.json"))
 }
-pub fn get_week(all: &All, week_type: WeekType) -> Vec<(NaiveDate, Day)>{
-     match week_type {
+pub fn get_week(all: &All, week_type: WeekType) -> Vec<(NaiveDate, Day)> {
+    match week_type {
         WeekType::SinceToday => {
             let today = Local::now().date_naive();
             let start_week = today - chrono::Duration::days(6);
@@ -125,7 +125,7 @@ pub fn get_week(all: &All, week_type: WeekType) -> Vec<(NaiveDate, Day)>{
         }
     }
 }
-pub fn format_time(time: Duration) -> String{
+pub fn format_time(time: Duration) -> String {
     let secs = time.as_secs();
     let hours = secs / 3600;
     let mins = (secs % 3600) / 60;
