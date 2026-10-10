@@ -106,7 +106,7 @@ pub fn load_data() -> Result<All> {
 }
 
 fn get_path() -> Result<PathBuf> {
-    let path = dirs::data_local_dir().unwrap().join("time_traker");
+    let path = dirs::data_local_dir().unwrap().join("time_tracker");
     if !path.exists() {
         fs::create_dir_all(&path)
             .with_context(|| format!("Failed to create path: {}", path.display()))?;

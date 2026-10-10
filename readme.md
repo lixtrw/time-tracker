@@ -69,7 +69,6 @@ tmtr stat                  # today
 tmtr stat day y            # yesterday
 tmtr stat week current     # current calendar week
 tmtr stat week rolling     # last 7 days
-ti
 tmtr stat tag rust         # total time for a tag
 ```
 
@@ -102,9 +101,9 @@ month), `5-10-2026`, `5-10-t` (day-month-year)
 
 | OS      | Path                                                  |
 |---------|-------------------------------------------------------|
-| Linux   | `~/.local/share/time_traker/data.json`                |
-| macOS   | `~/Library/Application Support/time_traker/data.json` |
-| Windows | `%LOCALAPPDATA%\time_traker\data.json`                |
+| Linux   | `~/.local/share/time_tracker/data.json`                |
+| macOS   | `~/Library/Application Support/time_tracker/data.json` |
+| Windows | `%LOCALAPPDATA%\time_tracker\data.json`                |
 
 ## Roadmap
 
@@ -112,6 +111,8 @@ month), `5-10-2026`, `5-10-t` (day-month-year)
 - [x] Saving data
 - [x] Stat
 - [x] TUI stopwatch
+- [ ] Make tui stopwatch more reliable
+- [ ] Add tests
 - [ ] `stat period`
 - [ ] Edit existing activities
 - [ ] PomodoroTimer
