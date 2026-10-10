@@ -75,20 +75,35 @@ tmtr stat tag rust         # total time for a tag
 Example output:
 
 ```text
-Week[Current]: 2026-10-05 - 2026-10-10
--------------------------------------------------------
-Fri 09.10     0h 15m  # reading
-Sat 10.10     4h  0m  # programming, rust
--------------------------------------------------------
-Total:  4h 15m
+Statistic for 2026-10-10:
+----------------------------------------
+[0]  4h  0m  |  # 15m, programming, rust
+[1]  0h  2m  |  # math
+----------------------------------------
+In total today: 4h 2m
 ```
 
-### Remove an activity
+Remove an activity
 
 ```sh
 tmtr remove 0              # by index from `stat`, today
 tmtr remove 1 -d y         # yesterday
 ```
+
+```text
+Week[Rolling]: 2026-10-04 - 2026-10-10
+-------------------------------------------------------
+Sun 04.10     0h  0m  #
+Mon 05.10     0h  0m  #
+Tue 06.10     0h  0m  #
+Wed 07.10     0h  0m  #
+Thu 08.10     0h  0m  #
+Fri 09.10     0h 15m  # reading
+Sat 10.10     4h  2m  # 15m, math, programming, rust
+-------------------------------------------------------
+Total:  4h 17m
+```
+
 
 ## Formats
 
@@ -112,8 +127,9 @@ month), `5-10-2026`, `5-10-t` (day-month-year)
 - [x] Stat
 - [x] TUI stopwatch
 - [ ] Make tui stopwatch more reliable
+- [ ] Config and diferent color themes
 - [ ] Add tests
-- [ ] `stat period`
+- [ ] stat period
 - [ ] Edit existing activities
 - [ ] PomodoroTimer
 - [ ] FlowTimer
