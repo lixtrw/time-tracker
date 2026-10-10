@@ -49,6 +49,9 @@ enum StatType{
     Period{
         since: String,
         until: String,
+    },
+    Tag{
+    tags: Vec<String>
     }
 }
 #[derive(Subcommand)]
@@ -75,7 +78,7 @@ fn main() -> Result<()> {
             data.add_activity(parsed_day, activity);
 
             additional_functions::save(&data)?;
-            println!("Activity saved at {parsed_day}!");
+            println!("Activity saved at {parsed_day}");
         }
 
         Command::Stat { stat_type } => {
@@ -91,6 +94,10 @@ fn main() -> Result<()> {
                 }
                 StatType::Period { since, until } => {
                     println!("period is not implemented yet");
+                }
+                StatType::Tag {tags} => {
+                    let a = data.get_tags(tags.clone());
+                    println!("tags: # {} : {}", tags.iter().cloned().collect::<Vec<_>>().join(" "), additional_functions::format_time(a));
                 }
             }
         }

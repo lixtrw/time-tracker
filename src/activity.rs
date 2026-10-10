@@ -75,4 +75,12 @@ impl All {
         }
         result
     }
-}
+    pub fn get_tags(&self, tags: Vec<String>) -> Duration {
+        let tags: BTreeSet<String> = tags.into_iter().collect();
+
+        self.days.values()
+            .flat_map(|day| &day.activities)
+            .filter(|activity| !activity.tags.is_disjoint(&tags))
+            .map(|activity| activity.time_spent)
+            .sum()
+    }}
