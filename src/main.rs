@@ -19,52 +19,84 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
+    /// Add an activity with tags and a duration
     Add {
+        /// Tags describing the activity (e.g. `rust programming`)
         #[arg(value_name = "TAGS", required = true, num_args = 1..)]
         activity_tags: Vec<String>,
 
+        /// Time spent, e.g. `45m`, `1h30m`, `2h`, `90s`
         #[arg(short = 't', long = "time")]
         duration: String,
 
+        /// Date: `t` (today), `y` (yesterday), `12-tt` (day of this month),
+        /// `12-01-t` (day-month, this year), `5-10-2026` (day-month-year)
         #[arg(short = 'd', long = "day", default_value = "t")]
         day: String,
     },
+
+    /// Show statistics (today by default)
     Stat {
         #[command(subcommand)]
         stat_type: Option<StatType>,
     },
+
+    /// Remove an activity by its index from `stat`
     Remove {
+        /// Index of the activity, as shown by `stat day`
         index: usize,
+
+        /// Date of the activity (same formats as in `add`)
         #[arg(short = 'd', long = "day", default_value = "t")]
         day: String,
     },
+
+    /// Start a TUI stopwatch and save the time when you quit
+    ///
+    /// Controls: `Space` pauses or resumes, `q` stops and saves.
     StopWatch {
+        /// Tags for the activity (e.g. `rust programming`)
         #[arg(required = true)]
         tags: Vec<String>,
     },
 }
+
 #[derive(Subcommand)]
 enum StatType {
+    /// Show all activities for one day
     Day {
+        /// Date: `t`, `y`, `12-tt`, `12-01-t`, `5-10-2026`
         #[arg(default_value = "t")]
         day: String,
     },
+
+    /// Show a week summary, day by day
     Week {
+        /// Which week to show
         #[arg(value_enum, default_value = "rolling")]
         week_type: WeekType,
     },
+
+    /// Show stats for a custom period (not implemented yet)
     Period {
+        /// First day of the period
         since: String,
+        /// Last day of the period
         until: String,
     },
+
+    /// Show total time for the given tags
     Tag {
+        /// Tags to sum up (matches activities with any of them)
         tags: Vec<String>,
     },
 }
 
 #[derive(ValueEnum, Clone, Debug, PartialEq, Eq)]
 pub enum WeekType {
+    /// The last 7 days, including today
     Rolling,
+    /// The current calendar week, starting on Monday
     Current,
 }
 

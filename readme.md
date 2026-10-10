@@ -24,7 +24,7 @@ see daily and weekly stats, and run a TUI stopwatch
 ## Installation
 
 ```sh
-cargo install tmtr
+cargo install tmtr --version 0.0.5-alpha.1
 ```
 
 Or from source:
