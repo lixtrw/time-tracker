@@ -44,7 +44,7 @@ pub fn format_to_duration(time: &str) -> Result<Duration> {
 
     Ok(total_duration)
 }
-pub fn parse_user_date(input: &str) -> Result<NaiveDate> {
+pub fn parse_date(input: &str) -> Result<NaiveDate> {
     let now = Local::now().date_naive();
     let trimmed = input.trim();
 

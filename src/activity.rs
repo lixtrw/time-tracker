@@ -15,6 +15,7 @@ impl Activity {
     pub fn new(tags: Vec<String>, time_spent: Duration) -> Self {
         Self {
             tags: tags.into_iter().collect(),
+
             time_spent,
         }
     }
