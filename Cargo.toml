@@ -1,7 +1,15 @@
 [package]
-name = "time_tr"
-version = "0.1.0"
+name = "tmtr"
+version = "0.0.5-alpha.1"
 edition = "2024"
+license = "MIT OR Apache-2.0"
+description = "Minimal CLI time tracker with a TUI stopwatch"
+rust-version = "1.88.0"
+authors = ["lixtrw <sqwlost@gmail.com>"]
+readme = "readme.md"
+repository = "https://github.com/lixtrw/time-traker"
+keywords = ["time-tracker", "cli", "tui", "productivity"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 color-eyre = "0.6.5"
@@ -19,6 +27,4 @@ opt-level = 3
 lto = true
 codegen-units = 1
 panic = "abort"
-
-[features]
-default = []
+strip = true

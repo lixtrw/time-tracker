@@ -115,13 +115,16 @@ fn get_path() -> Result<PathBuf> {
 }
 pub fn get_week(all: &All, week_type: WeekType) -> Vec<(NaiveDate, Day)> {
     match week_type {
-        WeekType::SinceToday => {
+        WeekType::Rolling => {
             let today = Local::now().date_naive();
             let start_week = today - chrono::Duration::days(6);
             all.get_period(start_week, today)
         }
-        WeekType::ThisWeek => {
-            panic!("this isnt implemented yet")
+        WeekType::Current => {
+            let today = Local::now().date_naive();
+            let monday =
+                today - chrono::Duration::days(today.weekday().num_days_from_monday() as i64);
+            all.get_period(monday, today)
         }
     }
 }

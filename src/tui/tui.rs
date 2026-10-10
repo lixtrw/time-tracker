@@ -104,6 +104,9 @@ impl App {
     }
 
     fn exit(&mut self) {
+        if let Some(instant) = self.start_time {
+            self.elapsed += instant.elapsed();
+        }
         self.exit = true;
     }
 }

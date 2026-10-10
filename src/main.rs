@@ -5,7 +5,7 @@ mod tui;
 use crate::activity::{Activity, All};
 use crate::additional_functions::format_time;
 use chrono::{Local, NaiveDate};
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, ValueEnum};
 use color_eyre::eyre::Result;
 use std::collections::BTreeSet;
 use std::time::Duration;
@@ -39,6 +39,7 @@ enum Command {
         day: String,
     },
     StopWatch {
+        #[arg(required = true)]
         tags: Vec<String>,
     },
 }
@@ -49,7 +50,7 @@ enum StatType {
         day: String,
     },
     Week {
-        #[command(subcommand)]
+        #[arg(value_enum, default_value = "rolling")]
         week_type: WeekType,
     },
     Period {
@@ -60,10 +61,11 @@ enum StatType {
         tags: Vec<String>,
     },
 }
-#[derive(Subcommand)]
+
+#[derive(ValueEnum, Clone, Debug, PartialEq, Eq)]
 pub enum WeekType {
-    SinceToday,
-    ThisWeek,
+    Rolling,
+    Current,
 }
 
 fn main() -> Result<()> {
@@ -151,7 +153,7 @@ fn add_activity(
 }
 
 fn print_week_stat(data: &All, week_type: WeekType) -> Result<()> {
-    let period_data = additional_functions::get_week(data, week_type);
+    let period_data = additional_functions::get_week(data, week_type.clone());
 
     let Some((first_date, _)) = period_data.first() else {
         println!("No data for this week");
@@ -160,7 +162,7 @@ fn print_week_stat(data: &All, week_type: WeekType) -> Result<()> {
 
     let last_date = period_data.last().unwrap().0;
 
-    println!("Week: {} - {}", first_date, last_date);
+    println!("Week[{:?}]: {} - {}", week_type, first_date, last_date);
     println!("{:-<55}", "");
 
     let mut total_week_time = Duration::ZERO;
