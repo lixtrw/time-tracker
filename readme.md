@@ -121,12 +121,14 @@ month), `5-10-2026`, `5-10-t` (day-month-year)
 | Windows | `%LOCALAPPDATA%\time_tracker\data.json`                |
 
 ## Roadmap
+> **Note** After the first day of use, I can say it's quite convenient. Here's my summary for today. So, I want to add an activity editor. For now, I'll just do it as commands without TUI. I also want to add something like the difference between weeks, what the percentage growth is, and something like that.
 
 - [x] MVP prototype
 - [x] Saving data
 - [x] Stat
 - [x] TUI stopwatch
 - [ ] Make tui stopwatch more reliable
+- [ ] Activity editor
 - [ ] Config and diferent color themes
 - [ ] Add tests
 - [ ] stat period
