@@ -56,18 +56,11 @@ impl All {
             None
         }
     }
-    pub fn get_period(
-        &self,
-        since: NaiveDate,
-        until: NaiveDate,
-    ) -> Vec<(NaiveDate, Day)> {
+    pub fn get_period(&self, since: NaiveDate, until: NaiveDate) -> Vec<(NaiveDate, Day)> {
         let mut result = Vec::new();
         let mut date = since;
         while date <= until {
-            result.push((
-                date,
-                self.days.get(&date).cloned().unwrap_or_default(),
-            ));
+            result.push((date, self.days.get(&date).cloned().unwrap_or_default()));
             if date == until {
                 break;
             }
@@ -75,12 +68,15 @@ impl All {
         }
         result
     }
-    pub fn get_tags(&self, tags: Vec<String>) -> Duration {
-        let tags: BTreeSet<String> = tags.into_iter().collect();
+    pub fn get_tags(&self, tags: &[String]) -> Duration {
+        let tags: BTreeSet<String> = tags.iter().cloned().collect();
 
-        self.days.values()
+        self.days
+            .values()
             .flat_map(|day| &day.activities)
-            .filter(|activity| !activity.tags.is_disjoint(&tags))
-            .map(|activity| activity.time_spent)
+            .filter(|a| tags.is_subset(&a.tags))
+            .map(|a| a.time_spent)
             .sum()
-    }}
+    }
+}
+

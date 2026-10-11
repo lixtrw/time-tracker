@@ -131,7 +131,7 @@ fn main() -> Result<()> {
                     println!("period is not implemented yet");
                 }
                 StatType::Tag { tags } => {
-                    let a = data.get_tags(tags.clone());
+                    let a = data.get_tags(&tags);
                     println!(
                         "tags: # {} : {}",
                         tags.to_vec().join(" "),
