@@ -1,5 +1,7 @@
 mod activity;
 mod additional_functions;
+mod day;
+mod habbit_tracker;
 mod tui;
 
 use crate::activity::{Activity, All};
@@ -102,6 +104,11 @@ pub enum WeekType {
 
 fn main() -> Result<()> {
     color_eyre::install()?;
+    day::test();
+    Ok(())
+}
+
+fn main1() -> Result<()> {
     let cli = Cli::parse();
     let mut data = additional_functions::load_data()?;
 

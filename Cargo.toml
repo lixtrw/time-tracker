@@ -11,6 +11,7 @@ repository = "https://github.com/lixtrw/time-traker"
 keywords = ["time-tracker", "cli", "tui", "productivity"]
 categories = ["command-line-utilities"]
 
+
 [dependencies]
 color-eyre = "0.6.5"
 dirs = "7.0.0"
