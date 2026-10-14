@@ -4,13 +4,17 @@ mod day;
 mod habbit_tracker;
 mod tui;
 
-use crate::activity::{Activity, All};
+use crate::activity::{Activity, AllActivities};
 use crate::additional_functions::format_time;
+use crate::day::ActionType::{Activities, Habbits};
+use crate::day::{Day, DayList};
+use crate::habbit_tracker::{AllHabbits, Habbit};
 use chrono::{Local, NaiveDate};
 use clap::{Parser, Subcommand, ValueEnum};
 use color_eyre::eyre::Result;
 use std::collections::BTreeSet;
 use std::time::Duration;
+use std::vec;
 
 #[derive(Parser)]
 #[command(author = "lixtrw", version, about = "Time tracker")]
@@ -104,10 +108,22 @@ pub enum WeekType {
 
 fn main() -> Result<()> {
     color_eyre::install()?;
-    day::test();
+    let today_action = Activity::new(vec!["end".into()], Duration::from_mins(75));
+    let today_action1 = Activity::new(vec!["rs".into()], Duration::from_mins(75));
+
+    let today_habbit = Habbit::new("Eng".into(), false);
+
+    let today_all_activities = AllActivities::new(vec![today_action1, today_action]);
+    let today_all_habbits = AllHabbits::new(vec![today_habbit]);
+    let today_final = vec![Activities(today_all_activities), Habbits(today_all_habbits)];
+
+    let today = Day::new(today_final);
+    println!("{:#?}", today);
+
     Ok(())
 }
 
+#[cfg(disabled)]
 fn main1() -> Result<()> {
     let cli = Cli::parse();
     let mut data = additional_functions::load_data()?;
@@ -177,6 +193,7 @@ fn main1() -> Result<()> {
     Ok(())
 }
 
+#[cfg(disabled)]
 fn add_activity(
     day: NaiveDate,
     activity_tags: Vec<String>,
@@ -191,6 +208,7 @@ fn add_activity(
     Ok(())
 }
 
+#[cfg(disabled)]
 fn print_week_stat(data: &All, week_type: WeekType) -> Result<()> {
     let period_data = additional_functions::get_week(data, week_type.clone());
 
@@ -243,6 +261,7 @@ fn print_week_stat(data: &All, week_type: WeekType) -> Result<()> {
     Ok(())
 }
 
+#[cfg(disabled)]
 fn print_day_stat(data: &All, day: &str) -> Result<()> {
     let parsed_day = additional_functions::parse_date(day)?;
     let day_info = match data.get_day(parsed_day) {

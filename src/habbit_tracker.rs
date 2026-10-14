@@ -10,3 +10,11 @@ impl Habbit {
         Self { title, is_finished }
     }
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AllHabbits(pub Vec<Habbit>);
+impl AllHabbits {
+    pub fn new(data: Vec<Habbit>) -> Self {
+        Self { 0: data }
+    }
+}

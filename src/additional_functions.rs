@@ -5,6 +5,8 @@ use color_eyre::eyre::{Context, Ok, Result, eyre};
 use std::{fs, path::PathBuf, time::Duration};
 
 use crate::WeekType;
+
+#[cfg(disabled)]
 use crate::activity::{All, Day};
 
 pub fn format_to_duration(time: &str) -> Result<Duration> {
@@ -84,6 +86,8 @@ pub fn parse_date(input: &str) -> Result<NaiveDate> {
     NaiveDate::parse_from_str(trimmed, "%-d-%-m-%Y")
         .map_err(|e| eyre!("Failed to parse date'{}': {}", input, e))
 }
+
+#[cfg(disabled)]
 pub fn save(data: &All) -> Result<()> {
     let path = get_path()?;
     let string_content =
@@ -91,6 +95,8 @@ pub fn save(data: &All) -> Result<()> {
     fs::write(path, &string_content).context("failed to write file")?;
     Ok(())
 }
+
+#[cfg(disabled)]
 pub fn load_data() -> Result<All> {
     let path = get_path()?;
     if path.exists() {
@@ -111,8 +117,10 @@ fn get_path() -> Result<PathBuf> {
         fs::create_dir_all(&path)
             .with_context(|| format!("Failed to create path: {}", path.display()))?;
     }
-    Ok(path.join("data.json"))
+    Ok(path.join("data_test.json"))
 }
+
+#[cfg(disabled)]
 pub fn get_week(all: &All, week_type: WeekType) -> Vec<(NaiveDate, Day)> {
     match week_type {
         WeekType::Rolling => {
