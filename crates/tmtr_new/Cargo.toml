@@ -1,0 +1,11 @@
+[package]
+name = "tmtr"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+dirs = "7.0.0"
+chrono = { version = "0.4.45", features = ["serde"] }
+serde = { version = "1.0.229", features = ["derive"] }
+color-eyre = "0.6.5"
+clap = { version = "4.6.7", features = ["derive"] }
