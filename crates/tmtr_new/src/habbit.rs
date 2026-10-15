@@ -7,9 +7,7 @@ pub struct Habbit {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct TotalHabbits {
-    pub all: Vec<Habbit>,
-}
+pub struct TotalHabbits(pub Vec<Habbit>);
 impl Habbit {
     pub fn new(title: String, is_complited: bool) -> Self {
         Self {

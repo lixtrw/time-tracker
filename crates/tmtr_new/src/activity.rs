@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeSet, time::Duration};
 
+use crate::activity;
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Activity {
     pub tags: BTreeSet<String>,
@@ -17,6 +19,9 @@ impl Activity {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct TotalActivities {
-    pub all: Vec<Activity>,
+pub struct TotalActivities(pub Vec<Activity>);
+impl TotalActivities {
+    pub fn add_activity(&mut self, activity: Activity) {
+        self.0.push(activity);
+    }
 }

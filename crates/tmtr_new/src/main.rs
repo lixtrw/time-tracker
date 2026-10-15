@@ -25,15 +25,14 @@ fn main() {
     );
     let activity1 = Activity::new(format_text(vec!["math", "algebra"]), Duration::from_mins(5));
 
-    let ta = TotalActivities {
-        all: vec![activity, activity1],
-    };
+    let ta = TotalActivities(vec![activity, activity1]);
 
     let habbit = Habbit::new("English".into(), false);
-    let th = TotalHabbits { all: vec![habbit] };
+    let th = TotalHabbits(vec![habbit]);
 
     let day = DayData {
-        data: vec![ActionType::Habbits(th), ActionType::Activities(ta)],
+        activities: ta,
+        habbits: th,
     };
     let today = chrono::Local::now().date_naive();
     let mut today_data = DaysList::default();
