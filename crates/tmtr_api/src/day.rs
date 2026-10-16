@@ -3,8 +3,6 @@ use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use serde_json::Value;
 use std::collections::BTreeMap;
 
-use crate::Plugin;
-
 pub trait DayModule: Default + Serialize + DeserializeOwned {
     const ID: &'static str;
 }

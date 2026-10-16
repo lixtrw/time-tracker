@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["crates/tmtr_api", "crates/tmtr_activity_plugin", "runner"]
+members = ["crates/tmtr_api", "crates/tmtr_activity_plugin", "runner", "crates/tmtr_habit_plugin"]
 
 
 [profile.release]

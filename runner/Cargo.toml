@@ -14,6 +14,7 @@ tmtr_api = { path = "../crates/tmtr_api/" }
 libloading = "0.9.0"
 
 tmtr_activity_plugin = { path = "../crates/tmtr_activity_plugin/", optional = true }
+tmtr_habit_plugin = { path = "../crates/tmtr_habit_plugin", optional = true }
 
 [profile.release]
 opt-level = 3
@@ -23,7 +24,8 @@ panic = "abort"
 strip = true
 
 [features]
-default = ["debug", "buildin_activity"]
+default = ["debug", "buildin_activity", "buildin_habit"]
+debug = []
 
 buildin_activity = ["dep:tmtr_activity_plugin"]
-debug = []
+buildin_habit = ["dep:tmtr_habit_plugin"]

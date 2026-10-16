@@ -8,6 +8,7 @@ crate-type = ["rlib", "dylib"]
 
 [dependencies]
 tmtr_api = { path = "../tmtr_api/" }
+anyhow = "1.0.104"
 
 [features]
 dynamic = []

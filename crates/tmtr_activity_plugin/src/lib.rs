@@ -1,31 +1,60 @@
-use tmtr_api::{CommandInfo, Plugin};
+use anyhow::Context;
+use anyhow::Result;
+use std::time::Duration;
+use tmtr_api::serde_json::Value;
+use tmtr_api::{CommandInfo, Plugin, PluginData};
+use tmtr_api::{load, store};
 
-struct HelloPlugin;
+mod activity;
 
-impl Plugin for HelloPlugin {
-    fn id(&self) -> &str {
-        "hello"
+use crate::activity::*;
+
+struct ActivityPlugin {
+    pub meta: PluginData,
+}
+impl Plugin for ActivityPlugin {
+    fn meta(&self) -> &PluginData {
+        &self.meta
     }
-    fn version(&self) -> &str {
-        "0.0.1"
-    }
-    fn commands(&self) -> Vec<CommandInfo> {
-        vec![CommandInfo {
-            name: "add",
-            help: "",
-        }]
-    }
+
     fn execute(&mut self, command: &str, args: &[String], data: &mut Value) -> Result<(), String> {
         match command {
-            "add" => {}
-            _ => return Err(String::from("Unknown command")),
+            "add" => {
+                let parced = parse_args(args).map_err(|e| e.to_string())?;
+                let activity = Activity::new(parced.1, parced.0);
+
+                let mut total: TotalActivities = load(data)?;
+                total.add_activity(activity);
+                store(data, &total)?;
+
+                Ok(())
+            }
+            _ => Err(format!("Unknown command: {command}")),
         }
-        Ok(())
     }
 }
 
+fn parse_args(args: &[String]) -> Result<(Duration, Vec<String>)> {
+    let arg_pos = args.iter().position(|a| a == "-t").context("no time")?;
+    let time = args[arg_pos + 1]
+        .parse::<u64>()
+        .context("time should be in mins")?;
+    let tags: Vec<String> = args[0..arg_pos].into();
+
+    Ok((Duration::from_mins(time), tags))
+}
+
 pub fn init() -> Box<dyn Plugin> {
-    Box::new(HelloPlugin)
+    Box::new(ActivityPlugin {
+        meta: PluginData {
+            id: "activity",
+            version: env!("CARGO_PKG_VERSION"),
+            commands: vec![CommandInfo {
+                name: "add",
+                help: "add <tags> < -t time>",
+            }],
+        },
+    })
 }
 
 #[cfg(feature = "dynamic")]
