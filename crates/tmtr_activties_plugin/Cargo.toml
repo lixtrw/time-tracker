@@ -1,0 +1,10 @@
+[package]
+name = "tmtr_activties_plugin"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["dylib"]
+
+[dependencies]
+tmtr_plugin_api = { path = "../tmtr_plugin_api/" }

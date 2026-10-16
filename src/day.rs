@@ -1,36 +1,40 @@
-use std::collections::HashMap;
-
 use chrono::NaiveDate;
-use serde::{Deserialize, Serialize};
+use color_eyre::Result;
+use color_eyre::eyre::eyre;
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
+use serde_json::Value;
+use std::collections::BTreeMap;
 
-use crate::{
-    activity::{self, Activity, AllActivities},
-    habbit_tracker::{AllHabbits, Habbit},
-};
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum ActionType {
-    Activities(AllActivities),
-    Habbits(AllHabbits),
+pub trait DayModule: Default + Serialize + DeserializeOwned {
+    const ID: &'static str;
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Day {
-    pub actions: Vec<ActionType>,
-}
-impl Day {
-    pub fn new(data: Vec<ActionType>) -> Self {
-        Self { actions: data }
+#[derive(Serialize, Deserialize, Debug, Default)]
+#[serde(transparent)]
+pub struct DayData(BTreeMap<String, Value>);
+
+impl DayData {
+    pub fn add_data<Module: DayModule>(&mut self, data: &Module) -> Result<()> {
+        self.0
+            .insert(Module::ID.to_string(), serde_json::to_value(data)?);
+        Ok(())
+    }
+    pub fn get_data<Module: DayModule>(&self) -> Result<Module> {
+        if let Some(module) = self.0.get(Module::ID) {
+            Ok(serde_json::from_value(module.clone())?)
+        } else {
+            Err(eyre!("module noit found"))
+        }
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Default)]
-pub struct DayList {
-    pub days: HashMap<NaiveDate, Day>,
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct DaysList {
+    pub days: BTreeMap<NaiveDate, DayData>,
 }
-impl DayList {
-    pub fn add_day(&mut self, date: NaiveDate, day_data: Day) {
-        self.days.insert(date, day_data);
+
+impl DaysList {
+    pub fn day_mut(&mut self, date: NaiveDate) -> &mut DayData {
+        self.days.entry(date).or_default()
     }
 }

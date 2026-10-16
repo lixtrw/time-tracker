@@ -1,0 +1,31 @@
+[package]
+name = "tmtr"
+version = "0.0.5-alpha.1"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+description = "Minimal CLI time tracker with a TUI stopwatch"
+rust-version = "1.88.0"
+authors = ["lixtrw <sqwlost@gmail.com>"]
+readme = "readme.md"
+repository = "https://github.com/lixtrw/time-traker"
+keywords = ["time-tracker", "cli", "tui", "productivity"]
+categories = ["command-line-utilities"]
+
+
+[dependencies]
+color-eyre = "0.6.5"
+dirs = "7.0.0"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+chrono = { version = "0.4.45", features = ["serde"] }
+clap = { version = "4.6.7", features = ['derive'] }
+crossterm = { version = "0.29.0" }
+ratatui = { version = "0.30.2" }
+tui-big-text = "0.8.10"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
