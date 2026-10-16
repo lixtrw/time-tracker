@@ -1,0 +1,29 @@
+[package]
+name = "tmtr"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+dirs = "7.0.0"
+chrono = { version = "0.4.45", features = ["serde"] }
+serde = { version = "1.0.229", features = ["derive"] }
+color-eyre = "0.6.5"
+clap = { version = "4.6.7", features = ["derive"] }
+serde_json = "1.0.154"
+tmtr_api = { path = "../crates/tmtr_api/" }
+libloading = "0.9.0"
+
+tmtr_activity_plugin = { path = "../crates/tmtr_activity_plugin/", optional = true }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[features]
+default = ["debug", "buildin_activity"]
+
+buildin_activity = ["dep:tmtr_activity_plugin"]
+debug = []

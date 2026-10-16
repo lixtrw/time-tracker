@@ -611,12 +611,26 @@ dependencies = [
  "libloading",
  "serde",
  "serde_json",
- "tmtr_plugin_api",
+ "tmtr_activity_plugin",
+ "tmtr_api",
 ]
 
 [[package]]
-name = "tmtr_plugin_api"
+name = "tmtr_activity_plugin"
 version = "0.1.0"
+dependencies = [
+ "tmtr_api",
+]
+
+[[package]]
+name = "tmtr_api"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "color-eyre",
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "tracing"

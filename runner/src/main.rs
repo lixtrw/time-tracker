@@ -1,10 +1,12 @@
 mod activity;
 mod day;
 mod habbit;
+mod modules;
 
 use color_eyre::Result;
 use libloading::Library;
 use std::time::Duration;
+use tmtr_plugin_api::Plugin;
 
 use crate::{
     activity::{Activity, TotalActivities},
@@ -14,7 +16,26 @@ use crate::{
 
 fn main() -> Result<()> {
     color_eyre::install()?;
-    test2()?;
+    test3()?;
+    Ok(())
+}
+
+fn init_plugins() -> Result<Vec<Box<dyn Plugin>>> {
+    let mut modules: Vec<Box<dyn Plugin>> = Vec::new();
+
+    #[cfg(feature = "buildin_activity")]
+    modules.push(tmtr_activity_plugin::init());
+
+    Ok(modules)
+}
+
+#[cfg(feature = "debug")]
+fn test3() -> Result<()> {
+    let plugins = init_plugins()?;
+    for i in plugins {
+        println!("{}", i.id());
+        println!("{:?}", i.commands());
+    }
     Ok(())
 }
 
@@ -29,7 +50,7 @@ fn test2() -> Result<()> {
         )?;
         let symb: Symbol<fn() -> Box<dyn Plugin>> = lib.get(b"init_plugin")?;
         let plugin = symb();
-        println!("{}", plugin.id());
+        println!("{:?}", plugin.commands());
     }
     Ok(())
 }
