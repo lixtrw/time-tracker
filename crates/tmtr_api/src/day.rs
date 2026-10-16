@@ -3,10 +3,6 @@ use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use serde_json::Value;
 use std::collections::BTreeMap;
 
-pub trait DayModule: Default + Serialize + DeserializeOwned {
-    const ID: &'static str;
-}
-
 #[derive(Serialize, Deserialize, Debug, Default)]
 #[serde(transparent)]
 pub struct DayData(BTreeMap<String, Value>);
@@ -14,6 +10,9 @@ pub struct DayData(BTreeMap<String, Value>);
 impl DayData {
     pub fn get_data_mut(&mut self, plugin_id: &str) -> &mut Value {
         self.0.entry(plugin_id.into()).or_insert(Value::Null)
+    }
+    pub fn get_data(&self, plugin_id: &str) -> Option<&Value> {
+        self.0.get(plugin_id)
     }
 }
 
